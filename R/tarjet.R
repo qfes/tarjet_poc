@@ -39,7 +39,7 @@ tar_julia <- function(name, command, ...) {
       function_args
     ))
   command_target <- targets::tar_target_raw(
-    name = glue::glue("{function_name}_exec"),
+    name = deparse(substitute(name)),
     command = command,
     ...
   )
@@ -74,7 +74,8 @@ parse_julia_paths <- function(methods_result) {
 }
 
 julia_eval_source <- function(fn, path, ...) {
-  JuliaCall::julia_call(fn, ...)
+  result <- JuliaCall::julia_call(fn, ...)
+  result
 }
 
 in_wd <- function(x) fs::path_common(c(x, fs::path_wd())) == fs::path_wd()

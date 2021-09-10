@@ -14,7 +14,7 @@ load_julia_sources()
 tar_plan(
   # target = function_to_make(arg), ## drake style
   n_incidents = 10000,
-  n_locations = 1000,
+  n_locations = 5000,
   n_stations = 10,
   travel_times = make_travel_time_mat(
     n_incidents,
