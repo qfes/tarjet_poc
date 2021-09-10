@@ -1,0 +1,25 @@
+#' .. content for \description{} (no empty lines) ..
+#'
+#' .. content for \details{} ..
+#'
+#' @title
+#' @param travel_time_mat
+#' @return
+#' @author Miles McBain
+#' @export
+fastest_2_R_fn <- function(travel_times) {
+
+    apply(
+      travel_times,
+      2,
+      function(times) {
+        result <- sort.int(times, index.return = TRUE)
+        list(
+          time = result$x[1:2],
+          index = result$ix[1:2]
+        )
+      }
+    )
+
+
+}
