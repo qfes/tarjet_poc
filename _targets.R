@@ -1,8 +1,8 @@
 ## Load your packages, e.g. library(targets).
 source("./packages.R")
 
-## Load your Julia libraries
-JuliaCall::julia_call("include", "julia_libraries.jl")
+## Load your Julia packages
+JuliaCall::julia_call("include", "packages.jl")
 
 ## Load your R files
 lapply(list.files("./R", full.names = TRUE), source)
