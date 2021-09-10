@@ -28,7 +28,8 @@ tar_julia <- function(name, command, ...) {
   file_target_name <- glue::glue("{function_name}_source")
   file_target <- targets::tar_target_raw(
     name = file_target_name,
-    command = local_function_path
+    command = local_function_path,
+    format = "file"
   )
   command <-
     as.call(c(
