@@ -1,4 +1,4 @@
-tar_julia <- function(name, command, ...) {
+tar_julia <- function(name, command, format = "fst", ...) {
 
   command_expr <- substitute(command)
   if (!inherits(command_expr, "call")) stop("I only accept Julia function calls for now.")
@@ -33,14 +33,18 @@ tar_julia <- function(name, command, ...) {
   )
   command <-
     as.call(c(
-      quote(julia_eval_source),
-      function_name,
+      quote(make_target_julia),
+      command_expr,
       as.name(file_target_name),
+      format,
       function_args
     ))
   command_target <- targets::tar_target_raw(
     name = deparse(substitute(name)),
     command = command,
+    storage = "none", # julia to write target output
+    retrieval = "none", # manually load dependencies from cache in julia,
+    format = format,
     ...
   )
 
@@ -73,9 +77,59 @@ parse_julia_paths <- function(methods_result) {
   unname()
 }
 
-julia_eval_source <- function(fn, path, ...) {
-  result <- JuliaCall::julia_call(fn, ...)
+make_target_julia <- function(command, command_source_path, output_format, ...) {
+  
+  fn_args <- eval(substitute(alist(...)))
+
+  cached_target_fn_args <-
+    Filter(is_cached_target, fn_args)
+
+  cached_target_names <-
+    as.character(cached_target_fn_args)
+
+  target_arguments <-
+    cached_target_fn_args |>
+    lapply(tar_path_raw) |>
+    setNames(cached_target_names)
+
+  output_path <- targets::tar_path()
+
+  command_text <- deparse(substitute(command))
+
+  result <- JuliaCall::julia_call(
+    "julia_make_target",
+    command_text,
+    output_path,
+    output_format,
+    target_arguments)
   result
+
 }
 
 in_wd <- function(x) fs::path_common(c(x, fs::path_wd())) == fs::path_wd()
+
+is_cached_target <- function(name) {
+  eval(
+    bquote(file.exists(targets::tar_path(.(name))))
+  )
+}
+
+tar_path_raw <- function(name) {
+  eval(
+    bquote(targets::tar_path(.(as.symbol(name))))
+  )
+}
+
+tar_interoperable <- function(expr) {
+  # wrap return value in serialiser
+  ## serialise_interoperable() S3 method?
+  # set format parquet
+}
+
+function() {
+  JuliaCall::julia_assign("command_text", command_text)
+  JuliaCall::julia_assign("output_path", tar_path(fastest_2_Julia))
+  JuliaCall::julia_assign("output_format", output_format)
+  JuliaCall::julia_assign("target_arguments", target_arguments)
+  JuliaCall::julia_command("target_arguments")
+}

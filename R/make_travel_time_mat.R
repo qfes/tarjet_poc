@@ -13,6 +13,5 @@ make_travel_time_mat <- function(n_incidents, n_locations, n_stations) {
 
   times <- sample.int(20 * 60, n_incidents * (n_locations + n_stations), replace = TRUE)
   dim(times) <- c(n_stations + n_locations, n_incidents)
-  times
 
 }

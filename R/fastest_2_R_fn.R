@@ -14,10 +14,7 @@ fastest_2_R_fn <- function(travel_times) {
       2,
       function(times) {
         result <- sort.int(times, index.return = TRUE)
-        list(
-          time = result$x[1:2],
-          index = result$ix[1:2]
-        )
+        result$ix[1:2]
       }
     )
 
